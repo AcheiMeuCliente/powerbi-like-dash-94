@@ -70,4 +70,22 @@ export interface ActiveFilters {
   mei: boolean[];
   simples: boolean[];
   busca: string;
+  capital_social_min?: number;
+  capital_social_max?: number;
+  data_inicio_min?: string;
+  data_inicio_max?: string;
+}
+
+export interface SavedFilter {
+  id: string;
+  name: string;
+  filters: ActiveFilters;
+  createdAt: string;
+}
+
+export interface FilterHistory {
+  id: string;
+  filters: ActiveFilters;
+  appliedAt: string;
+  resultsCount: number;
 }

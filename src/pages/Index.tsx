@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Building2, Database, Filter } from 'lucide-react';
+import { Building2, Database, Filter, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import AdvancedFilters from '@/components/AdvancedFilters';
@@ -24,7 +24,11 @@ const Index = () => {
     municipio: [],
     mei: [],
     simples: [],
-    busca: ''
+    busca: '',
+    capital_social_min: undefined,
+    capital_social_max: undefined,
+    data_inicio_min: undefined,
+    data_inicio_max: undefined
   });
 
   // Filtrar empresas baseado nos filtros ativos
@@ -82,6 +86,32 @@ const Index = () => {
         return false;
       }
 
+      // Filtros de capital social
+      if (activeFilters.capital_social_min && empresa.capital_social < activeFilters.capital_social_min) {
+        return false;
+      }
+
+      if (activeFilters.capital_social_max && empresa.capital_social > activeFilters.capital_social_max) {
+        return false;
+      }
+
+      // Filtros de data
+      if (activeFilters.data_inicio_min) {
+        const empresaDate = new Date(empresa.inicio_atividade);
+        const minDate = new Date(activeFilters.data_inicio_min);
+        if (empresaDate < minDate) {
+          return false;
+        }
+      }
+
+      if (activeFilters.data_inicio_max) {
+        const empresaDate = new Date(empresa.inicio_atividade);
+        const maxDate = new Date(activeFilters.data_inicio_max);
+        if (empresaDate > maxDate) {
+          return false;
+        }
+      }
+
       return true;
     });
   }, [activeFilters]);
@@ -95,10 +125,10 @@ const Index = () => {
 
   const handleSaveFilters = () => {
     // Aqui você salvaria os filtros no localStorage ou backend
-    localStorage.setItem('savedFilters', JSON.stringify(activeFilters));
+    localStorage.setItem('currentFilters', JSON.stringify(activeFilters));
     toast({
-      title: "Filtros salvos",
-      description: "Suas configurações de filtro foram salvas com sucesso.",
+      title: "Filtros aplicados",
+      description: `${filteredEmpresas.length} empresas encontradas com os filtros atuais.`,
     });
   };
 
@@ -113,11 +143,44 @@ const Index = () => {
       municipio: [],
       mei: [],
       simples: [],
-      busca: ''
+      busca: '',
+      capital_social_min: undefined,
+      capital_social_max: undefined,
+      data_inicio_min: undefined,
+      data_inicio_max: undefined
     });
     toast({
       title: "Filtros resetados",
       description: "Todos os filtros foram limpos.",
+    });
+  };
+
+  const handleExportResults = () => {
+    // Simular exportação
+    const csvContent = [
+      // Cabeçalho
+      Object.keys(filteredEmpresas[0] || {}).join(','),
+      // Dados
+      ...filteredEmpresas.map(empresa => 
+        Object.values(empresa).map(value => 
+          typeof value === 'string' && value.includes(',') ? `"${value}"` : String(value)
+        ).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `empresas_filtradas_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Exportação concluída",
+      description: `${filteredEmpresas.length} registros exportados com sucesso.`,
     });
   };
 
@@ -136,17 +199,30 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Database className="h-6 w-6 text-blue-600" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Database className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Dashboard de Empresas
+                </h1>
+                <p className="text-gray-600">
+                  Sistema avançado de filtros e análise empresarial
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard de Empresas
-              </h1>
-              <p className="text-gray-600">
-                Sistema avançado de filtros e análise empresarial
-              </p>
+            <div className="flex items-center gap-3">
+              <AdvancedFilters
+                filterOptions={filterOptions}
+                activeFilters={activeFilters}
+                onFiltersChange={setActiveFilters}
+                onSaveFilters={handleSaveFilters}
+                onResetFilters={handleResetFilters}
+                onExportResults={handleExportResults}
+                resultsCount={filteredEmpresas.length}
+              />
             </div>
           </div>
         </div>
@@ -217,15 +293,6 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Filtros Avançados */}
-        <AdvancedFilters
-          filterOptions={filterOptions}
-          activeFilters={activeFilters}
-          onFiltersChange={setActiveFilters}
-          onSaveFilters={handleSaveFilters}
-          onResetFilters={handleResetFilters}
-        />
 
         {/* Tabela de Empresas */}
         <EmpresasTable
