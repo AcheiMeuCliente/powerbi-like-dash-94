@@ -1,10 +1,11 @@
-
 import React, { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown, ExternalLink, MapPin, Phone, Mail } from 'lucide-react';
+import { ChevronUp, ChevronDown, ExternalLink, MapPin, Phone, Mail, MessageCircle, Eye, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Empresa } from '@/types/empresa';
+import EmpresaDetailsDialog from './EmpresaDetailsDialog';
 
 interface EmpresasTableProps {
   empresas: Empresa[];
@@ -19,6 +20,8 @@ type SortDirection = 'asc' | 'desc';
 const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: EmpresasTableProps) => {
   const [sortField, setSortField] = useState<SortField>('razao_social');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const sortedEmpresas = useMemo(() => {
     return [...empresas].sort((a, b) => {
@@ -84,220 +87,325 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
     }
   };
 
-  return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl">Empresas Encontradas</CardTitle>
-          <div className="text-sm text-gray-600">
-            {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} encontrada{empresas.length !== 1 ? 's' : ''}
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <SortableHeader field="cnpj">CNPJ</SortableHeader>
-                <SortableHeader field="razao_social">Razão Social</SortableHeader>
-                <SortableHeader field="nome_fantasia">Nome Fantasia</SortableHeader>
-                <SortableHeader field="situacao">Situação</SortableHeader>
-                <SortableHeader field="cnae_principal_nome">CNAE Principal</SortableHeader>
-                <SortableHeader field="porte">Porte</SortableHeader>
-                <SortableHeader field="matriz_filial">Tipo</SortableHeader>
-                <SortableHeader field="municipio">Município</SortableHeader>
-                <SortableHeader field="estado">UF</SortableHeader>
-                <SortableHeader field="capital_social">Capital Social</SortableHeader>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contato
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedEmpresas.map((empresa, index) => (
-                <tr key={empresa.cnpj} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 whitespace-nowrap text-sm font-mono">
-                    {empresa.cnpj}
-                  </td>
-                  <td className="px-4 py-4 text-sm font-medium text-gray-900 max-w-xs truncate">
-                    <div title={empresa.razao_social}>
-                      {empresa.razao_social}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600 max-w-xs truncate">
-                    {empresa.nome_fantasia || '-'}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <Badge className={`${getSituacaoColor(empresa.situacao)} border-0`}>
-                      {empresa.situacao}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600 max-w-xs truncate">
-                    <div title={empresa.cnae_principal_nome}>
-                      <div className="font-mono text-xs text-gray-500">{empresa.cnae_principal_codigo}</div>
-                      <div>{empresa.cnae_principal_nome}</div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {empresa.porte}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex gap-1">
-                      <Badge variant="outline" className="text-xs">
-                        {empresa.matriz_filial}
-                      </Badge>
-                      {empresa.mei && (
-                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
-                          MEI
-                        </Badge>
-                      )}
-                      {empresa.simples && (
-                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
-                          Simples
-                        </Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {empresa.municipio}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {empresa.estado}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {formatCurrency(empresa.capital_social)}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex gap-1">
-                      {empresa.tem_telefone && (
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                          <Phone className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {empresa.tem_email && (
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                          <Mail className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {empresa.whatsapp_1 && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-6 w-6 p-0 text-green-600"
-                          onClick={() => window.open(empresa.whatsapp_1, '_blank')}
-                        >
-                          <Phone className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 w-6 p-0"
-                        onClick={() => window.open(empresa.maps, '_blank')}
-                        title="Ver no mapa"
-                      >
-                        <MapPin className="h-3 w-3" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-6 w-6 p-0"
-                        onClick={() => window.open(empresa.receita_federal, '_blank')}
-                        title="Ver na Receita Federal"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+  const formatPhoneForDisplay = (phone: string) => {
+    if (!phone) return '';
+    // Remove apenas números para exibição
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    }
+    return phone;
+  };
 
-        {/* Paginação */}
-        <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-          <div className="flex-1 flex justify-between sm:hidden">
-            <Button
-              variant="outline"
-              disabled={currentPage === 1}
-              onClick={() => onPageChange(currentPage - 1)}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              disabled={currentPage === totalPages}
-              onClick={() => onPageChange(currentPage + 1)}
-            >
-              Próximo
-            </Button>
-          </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Mostrando{' '}
-                <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>{' '}
-                a{' '}
-                <span className="font-medium">
-                  {Math.min(currentPage * itemsPerPage, empresas.length)}
-                </span>{' '}
-                de{' '}
-                <span className="font-medium">{empresas.length}</span>{' '}
-                resultados
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === 1}
-                  onClick={() => onPageChange(currentPage - 1)}
-                  className="rounded-r-none"
-                >
-                  Anterior
-                </Button>
-                
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = i + 1;
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => onPageChange(pageNum)}
-                      className="rounded-none"
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === totalPages}
-                  onClick={() => onPageChange(currentPage + 1)}
-                  className="rounded-l-none"
-                >
-                  Próximo
-                </Button>
-              </nav>
+  const handleViewDetails = (empresa: Empresa) => {
+    setSelectedEmpresa(empresa);
+    setDetailsOpen(true);
+  };
+
+  return (
+    <TooltipProvider>
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Empresas Encontradas</CardTitle>
+            <div className="text-sm text-gray-600">
+              {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} encontrada{empresas.length !== 1 ? 's' : ''}
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <SortableHeader field="cnpj">CNPJ</SortableHeader>
+                  <SortableHeader field="razao_social">Razão Social</SortableHeader>
+                  <SortableHeader field="nome_fantasia">Nome Fantasia</SortableHeader>
+                  <SortableHeader field="situacao">Situação</SortableHeader>
+                  <SortableHeader field="cnae_principal_nome">CNAE Principal</SortableHeader>
+                  <SortableHeader field="porte">Porte</SortableHeader>
+                  <SortableHeader field="matriz_filial">Tipo</SortableHeader>
+                  <SortableHeader field="municipio">Município</SortableHeader>
+                  <SortableHeader field="estado">UF</SortableHeader>
+                  <SortableHeader field="capital_social">Capital Social</SortableHeader>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contato
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {paginatedEmpresas.map((empresa, index) => (
+                  <tr key={empresa.cnpj} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-mono">
+                      {empresa.cnpj}
+                    </td>
+                    <td className="px-4 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                      <div className="truncate" title={empresa.razao_social}>
+                        {empresa.razao_social}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600 max-w-xs">
+                      <div className="truncate">
+                        {empresa.nome_fantasia || '-'}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <Badge className={`${getSituacaoColor(empresa.situacao)} border-0`}>
+                        {empresa.situacao}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600 max-w-xs">
+                      <div className="truncate" title={empresa.cnae_principal_nome}>
+                        <div className="font-mono text-xs text-gray-500">{empresa.cnae_principal_codigo}</div>
+                        <div className="truncate">{empresa.cnae_principal_nome}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {empresa.porte}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex gap-1 flex-wrap">
+                        <Badge variant="outline" className="text-xs">
+                          {empresa.matriz_filial}
+                        </Badge>
+                        {empresa.mei && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            MEI
+                          </Badge>
+                        )}
+                        {empresa.simples && (
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                            Simples
+                          </Badge>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {empresa.municipio}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {empresa.estado}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {formatCurrency(empresa.capital_social)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex gap-1">
+                        {empresa.tem_telefone && empresa.telefones && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0 hover:bg-blue-50"
+                                onClick={() => window.open(`tel:${empresa.telefones}`, '_blank')}
+                              >
+                                <Phone className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Telefone: {formatPhoneForDisplay(empresa.telefones)}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        
+                        {empresa.tem_email && empresa.email && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0 hover:bg-red-50"
+                                onClick={() => window.open(`mailto:${empresa.email}`, '_blank')}
+                              >
+                                <Mail className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Email: {empresa.email}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        
+                        {empresa.whatsapp_1 && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0 hover:bg-green-50"
+                                onClick={() => window.open(empresa.whatsapp_1, '_blank')}
+                              >
+                                <MessageCircle className="h-4 w-4 text-green-600" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>WhatsApp disponível</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                        
+                        {empresa.site && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0 hover:bg-purple-50"
+                                onClick={() => window.open(empresa.site, '_blank')}
+                              >
+                                <Globe className="h-4 w-4 text-purple-600" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Website: {empresa.site}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-indigo-50"
+                              onClick={() => handleViewDetails(empresa)}
+                            >
+                              <Eye className="h-4 w-4 text-indigo-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ver detalhes completos</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-orange-50"
+                              onClick={() => window.open(empresa.maps, '_blank')}
+                            >
+                              <MapPin className="h-4 w-4 text-orange-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ver localização no mapa</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-gray-50"
+                              onClick={() => window.open(empresa.receita_federal, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Consultar na Receita Federal</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginação */}
+          <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <Button
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => onPageChange(currentPage - 1)}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => onPageChange(currentPage + 1)}
+              >
+                Próximo
+              </Button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Mostrando{' '}
+                  <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>{' '}
+                  a{' '}
+                  <span className="font-medium">
+                    {Math.min(currentPage * itemsPerPage, empresas.length)}
+                  </span>{' '}
+                  de{' '}
+                  <span className="font-medium">{empresas.length}</span>{' '}
+                  resultados
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => onPageChange(currentPage - 1)}
+                    className="rounded-r-none"
+                  >
+                    Anterior
+                  </Button>
+                  
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => onPageChange(pageNum)}
+                        className="rounded-none"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => onPageChange(currentPage + 1)}
+                    className="rounded-l-none"
+                  >
+                    Próximo
+                  </Button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <EmpresaDetailsDialog 
+        empresa={selectedEmpresa}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
+    </TooltipProvider>
   );
 };
 
