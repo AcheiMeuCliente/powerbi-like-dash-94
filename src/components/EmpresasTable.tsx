@@ -53,15 +53,15 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
 
   const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <th 
-      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50 select-none"
+      className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer bg-gradient-to-r from-slate-50 to-blue-50 hover:from-blue-100 hover:to-indigo-100 select-none transition-all duration-200 border-b-2 border-blue-200"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center space-x-1">
         <span>{children}</span>
         {sortField === field && (
           sortDirection === 'asc' ? 
-            <ChevronUp className="h-4 w-4" /> : 
-            <ChevronDown className="h-4 w-4" />
+            <ChevronUp className="h-4 w-4 text-blue-600" /> : 
+            <ChevronDown className="h-4 w-4 text-blue-600" />
         )}
       </div>
     </th>
@@ -80,10 +80,10 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
 
   const getSituacaoColor = (situacao: string) => {
     switch (situacao.toLowerCase()) {
-      case 'ativa': return 'bg-green-100 text-green-800';
-      case 'suspensa': return 'bg-yellow-100 text-yellow-800';
-      case 'baixada': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'ativa': return 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-300 shadow-sm';
+      case 'suspensa': return 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-300 shadow-sm';
+      case 'baixada': return 'bg-gradient-to-r from-rose-100 to-red-100 text-rose-800 border border-rose-300 shadow-sm';
+      default: return 'bg-gradient-to-r from-slate-100 to-gray-100 text-slate-800 border border-slate-300 shadow-sm';
     }
   };
 
@@ -104,11 +104,13 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
 
   return (
     <TooltipProvider>
-      <Card className="w-full">
-        <CardHeader>
+      <Card className="w-full shadow-lg border-2 border-blue-100">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-blue-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Empresas Encontradas</CardTitle>
-            <div className="text-sm text-gray-600">
+            <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+              Empresas Encontradas
+            </CardTitle>
+            <div className="text-sm font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-blue-200 shadow-sm">
               {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} encontrada{empresas.length !== 1 ? 's' : ''}
             </div>
           </div>
@@ -116,8 +118,8 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
         
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-blue-200">
+              <thead className="bg-gradient-to-r from-slate-50 to-blue-50">
                 <tr>
                   <SortableHeader field="cnpj">CNPJ</SortableHeader>
                   <SortableHeader field="razao_social">Razão Social</SortableHeader>
@@ -129,68 +131,68 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                   <SortableHeader field="municipio">Município</SortableHeader>
                   <SortableHeader field="estado">UF</SortableHeader>
                   <SortableHeader field="capital_social">Capital Social</SortableHeader>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider bg-gradient-to-r from-slate-50 to-blue-50 border-b-2 border-blue-200">
                     Contato
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider bg-gradient-to-r from-slate-50 to-blue-50 border-b-2 border-blue-200">
                     Ações
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-blue-100">
                 {paginatedEmpresas.map((empresa, index) => (
-                  <tr key={empresa.cnpj} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-mono">
+                  <tr key={empresa.cnpj} className="hover:bg-gradient-to-r hover:from-blue-25 hover:to-indigo-25 transition-all duration-200 border-l-4 border-transparent hover:border-blue-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-mono text-slate-700 bg-slate-50">
                       {empresa.cnpj}
                     </td>
-                    <td className="px-4 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                    <td className="px-4 py-4 text-sm font-semibold text-slate-900 max-w-xs">
                       <div className="truncate" title={empresa.razao_social}>
                         {empresa.razao_social}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 max-w-xs">
+                    <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
                       <div className="truncate">
                         {empresa.nome_fantasia || '-'}
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <Badge className={`${getSituacaoColor(empresa.situacao)} border-0`}>
+                      <Badge className={`${getSituacaoColor(empresa.situacao)} font-medium`}>
                         {empresa.situacao}
                       </Badge>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 max-w-xs">
+                    <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
                       <div className="truncate" title={empresa.cnae_principal_nome}>
-                        <div className="font-mono text-xs text-gray-500">{empresa.cnae_principal_codigo}</div>
-                        <div className="truncate">{empresa.cnae_principal_nome}</div>
+                        <div className="font-mono text-xs text-blue-600 font-semibold">{empresa.cnae_principal_codigo}</div>
+                        <div className="truncate text-slate-700">{empresa.cnae_principal_nome}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
                       {empresa.porte}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex gap-1 flex-wrap">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-300">
                           {empresa.matriz_filial}
                         </Badge>
                         {empresa.mei && (
-                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge variant="outline" className="text-xs bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 border-cyan-300 font-medium">
                             MEI
                           </Badge>
                         )}
                         {empresa.simples && (
-                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                          <Badge variant="outline" className="text-xs bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border-emerald-300 font-medium">
                             Simples
                           </Badge>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
                       {empresa.municipio}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
                       {empresa.estado}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-emerald-700">
                       {formatCurrency(empresa.capital_social)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -201,7 +203,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="h-8 w-8 p-0 hover:bg-blue-50"
+                                className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-blue-100 hover:to-blue-200 transition-all duration-200 rounded-full"
                                 onClick={() => window.open(`tel:${empresa.telefones}`, '_blank')}
                               >
                                 <Phone className="h-4 w-4 text-blue-600" />
@@ -219,7 +221,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="h-8 w-8 p-0 hover:bg-red-50"
+                                className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-red-100 hover:to-rose-200 transition-all duration-200 rounded-full"
                                 onClick={() => window.open(`mailto:${empresa.email}`, '_blank')}
                               >
                                 <Mail className="h-4 w-4 text-red-600" />
@@ -237,7 +239,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="h-8 w-8 p-0 hover:bg-green-50"
+                                className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-green-100 hover:to-emerald-200 transition-all duration-200 rounded-full"
                                 onClick={() => window.open(empresa.whatsapp_1, '_blank')}
                               >
                                 <MessageCircle className="h-4 w-4 text-green-600" />
@@ -255,7 +257,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="h-8 w-8 p-0 hover:bg-purple-50"
+                                className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-purple-100 hover:to-violet-200 transition-all duration-200 rounded-full"
                                 onClick={() => window.open(empresa.site, '_blank')}
                               >
                                 <Globe className="h-4 w-4 text-purple-600" />
@@ -275,7 +277,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-indigo-50"
+                              className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-indigo-100 hover:to-blue-200 transition-all duration-200 rounded-full"
                               onClick={() => handleViewDetails(empresa)}
                             >
                               <Eye className="h-4 w-4 text-indigo-600" />
@@ -291,7 +293,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-orange-50"
+                              className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-orange-100 hover:to-amber-200 transition-all duration-200 rounded-full"
                               onClick={() => window.open(empresa.maps, '_blank')}
                             >
                               <MapPin className="h-4 w-4 text-orange-600" />
@@ -307,10 +309,10 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-gray-50"
+                              className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-gray-100 hover:to-slate-200 transition-all duration-200 rounded-full"
                               onClick={() => window.open(empresa.receita_federal, '_blank')}
                             >
-                              <ExternalLink className="h-4 w-4 text-gray-600" />
+                              <ExternalLink className="h-4 w-4 text-slate-600" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -326,12 +328,13 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
           </div>
 
           {/* Paginação */}
-          <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-4 py-3 border-t-2 border-blue-200 flex items-center justify-between">
             <div className="flex-1 flex justify-between sm:hidden">
               <Button
                 variant="outline"
                 disabled={currentPage === 1}
                 onClick={() => onPageChange(currentPage - 1)}
+                className="bg-white border-blue-300 text-blue-700 hover:bg-blue-50 disabled:bg-gray-100"
               >
                 Anterior
               </Button>
@@ -339,32 +342,33 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                 variant="outline"
                 disabled={currentPage === totalPages}
                 onClick={() => onPageChange(currentPage + 1)}
+                className="bg-white border-blue-300 text-blue-700 hover:bg-blue-50 disabled:bg-gray-100"
               >
                 Próximo
               </Button>
             </div>
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm font-medium text-slate-700">
                   Mostrando{' '}
-                  <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>{' '}
+                  <span className="font-bold text-blue-700">{(currentPage - 1) * itemsPerPage + 1}</span>{' '}
                   a{' '}
-                  <span className="font-medium">
+                  <span className="font-bold text-blue-700">
                     {Math.min(currentPage * itemsPerPage, empresas.length)}
                   </span>{' '}
                   de{' '}
-                  <span className="font-medium">{empresas.length}</span>{' '}
+                  <span className="font-bold text-indigo-700">{empresas.length}</span>{' '}
                   resultados
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                <nav className="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 1}
                     onClick={() => onPageChange(currentPage - 1)}
-                    className="rounded-r-none"
+                    className="rounded-r-none bg-white border-blue-300 text-blue-700 hover:bg-blue-50 disabled:bg-gray-100 disabled:text-gray-400"
                   >
                     Anterior
                   </Button>
@@ -377,7 +381,11 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                         variant={currentPage === pageNum ? "default" : "outline"}
                         size="sm"
                         onClick={() => onPageChange(pageNum)}
-                        className="rounded-none"
+                        className={`rounded-none ${
+                          currentPage === pageNum 
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600' 
+                            : 'bg-white border-blue-300 text-blue-700 hover:bg-blue-50'
+                        }`}
                       >
                         {pageNum}
                       </Button>
@@ -389,7 +397,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                     size="sm"
                     disabled={currentPage === totalPages}
                     onClick={() => onPageChange(currentPage + 1)}
-                    className="rounded-l-none"
+                    className="rounded-l-none bg-white border-blue-300 text-blue-700 hover:bg-blue-50 disabled:bg-gray-100 disabled:text-gray-400"
                   >
                     Próximo
                   </Button>
