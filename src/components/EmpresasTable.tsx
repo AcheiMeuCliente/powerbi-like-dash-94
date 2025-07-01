@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ExternalLink, MapPin, Phone, Mail, MessageCircle, Eye, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -89,12 +90,16 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
 
   const formatPhoneForDisplay = (phone: string) => {
     if (!phone) return '';
-    // Remove apenas números para exibição
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 11) {
       return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
     }
     return phone;
+  };
+
+  const truncateText = (text: string, maxLength: number) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   const handleViewDetails = (empresa: Empresa) => {
@@ -104,13 +109,13 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
 
   return (
     <TooltipProvider>
-      <Card className="w-full shadow-lg border-2 border-blue-100">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-blue-200">
+      <Card className="w-full shadow-xl border-2 border-blue-200 bg-gradient-to-br from-white to-blue-50">
+        <CardHeader className="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 border-b-2 border-blue-300 shadow-sm">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
               Empresas Encontradas
             </CardTitle>
-            <div className="text-sm font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-blue-200 shadow-sm">
+            <div className="text-sm font-semibold text-slate-600 bg-white px-4 py-2 rounded-full border border-blue-300 shadow-md">
               {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} encontrada{empresas.length !== 1 ? 's' : ''}
             </div>
           </div>
@@ -122,10 +127,9 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
               <thead className="bg-gradient-to-r from-slate-50 to-blue-50">
                 <tr>
                   <SortableHeader field="cnpj">CNPJ</SortableHeader>
-                  <SortableHeader field="razao_social">Razão Social</SortableHeader>
-                  <SortableHeader field="nome_fantasia">Nome Fantasia</SortableHeader>
-                  <SortableHeader field="situacao">Situação</SortableHeader>
+                  <SortableHeader field="razao_social">Empresa</SortableHeader>
                   <SortableHeader field="cnae_principal_nome">CNAE Principal</SortableHeader>
+                  <SortableHeader field="cnae_secundario">CNAE Secundário</SortableHeader>
                   <SortableHeader field="porte">Porte</SortableHeader>
                   <SortableHeader field="matriz_filial">Tipo</SortableHeader>
                   <SortableHeader field="municipio">Município</SortableHeader>
@@ -145,26 +149,44 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-mono text-slate-700 bg-slate-50">
                       {empresa.cnpj}
                     </td>
-                    <td className="px-4 py-4 text-sm font-semibold text-slate-900 max-w-xs">
-                      <div className="truncate" title={empresa.razao_social}>
-                        {empresa.razao_social}
+                    <td className="px-4 py-4 text-sm max-w-xs">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-slate-900 truncate" title={empresa.razao_social}>
+                          {empresa.razao_social}
+                        </div>
+                        {empresa.nome_fantasia && (
+                          <div className="text-sm text-slate-600 truncate" title={empresa.nome_fantasia}>
+                            {empresa.nome_fantasia}
+                          </div>
+                        )}
+                        <Badge className={`${getSituacaoColor(empresa.situacao)} text-xs font-medium`}>
+                          {empresa.situacao}
+                        </Badge>
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
-                      <div className="truncate">
-                        {empresa.nome_fantasia || '-'}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <Badge className={`${getSituacaoColor(empresa.situacao)} font-medium`}>
-                        {empresa.situacao}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
-                      <div className="truncate" title={empresa.cnae_principal_nome}>
+                      <div className="space-y-1">
                         <div className="font-mono text-xs text-blue-600 font-semibold">{empresa.cnae_principal_codigo}</div>
-                        <div className="truncate text-slate-700">{empresa.cnae_principal_nome}</div>
+                        <div className="truncate text-slate-700" title={empresa.cnae_principal_nome}>
+                          {empresa.cnae_principal_nome}
+                        </div>
                       </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
+                      {empresa.cnae_secundario ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="truncate cursor-help">
+                              {truncateText(empresa.cnae_secundario, 40)}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm">
+                            <p>{empresa.cnae_secundario}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-700">
                       {empresa.porte}
