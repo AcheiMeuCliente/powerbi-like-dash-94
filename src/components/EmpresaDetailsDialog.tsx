@@ -234,10 +234,10 @@ const EmpresaDetailsDialog = ({ empresa, open, onOpenChange }: EmpresaDetailsDia
                 <p className="text-sm text-slate-700">{empresa.cnae_principal_nome}</p>
               </div>
               
-              {empresa.cnae_secundario && (
+              {empresa.cnae_secundario_nome && (
                 <div>
-                  <label className="text-sm font-medium text-orange-700">CNAE Secundário</label>
-                  <p className="text-sm text-slate-700">{empresa.cnae_secundario}</p>
+                  <label className="text-sm font-medium text-orange-700">CNAE Secundário Completo</label>
+                  <p className="text-sm text-slate-700">{empresa.cnae_secundario_nome}</p>
                 </div>
               )}
               

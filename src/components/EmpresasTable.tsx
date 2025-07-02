@@ -129,7 +129,7 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                   <SortableHeader field="cnpj">CNPJ</SortableHeader>
                   <SortableHeader field="razao_social">Empresa</SortableHeader>
                   <SortableHeader field="cnae_principal_nome">CNAE Principal</SortableHeader>
-                  <SortableHeader field="cnae_secundario">CNAE Secundário</SortableHeader>
+                  <SortableHeader field="cnae_secundario_nome">CNAE Secundário</SortableHeader>
                   <SortableHeader field="porte">Porte</SortableHeader>
                   <SortableHeader field="matriz_filial">Tipo</SortableHeader>
                   <SortableHeader field="municipio">Município</SortableHeader>
@@ -173,15 +173,15 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                       </div>
                     </td>
                     <td className="px-4 py-4 text-sm text-slate-600 max-w-xs">
-                      {empresa.cnae_secundario ? (
+                      {empresa.cnae_secundario_nome ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="truncate cursor-help">
-                              {truncateText(empresa.cnae_secundario, 40)}
+                              {truncateText(empresa.cnae_secundario_nome, 40)}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent className="max-w-sm">
-                            <p>{empresa.cnae_secundario}</p>
+                            <p>{empresa.cnae_secundario_nome}</p>
                           </TooltipContent>
                         </Tooltip>
                       ) : (
