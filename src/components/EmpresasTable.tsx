@@ -1,12 +1,12 @@
-
 import React, { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown, ExternalLink, MapPin, Phone, Mail, MessageCircle, Eye, Globe } from 'lucide-react';
+import { ChevronUp, ChevronDown, ExternalLink, MapPin, Phone, Mail, MessageCircle, Eye, Globe, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Empresa } from '@/types/empresa';
 import EmpresaDetailsDialog from './EmpresaDetailsDialog';
+import LeadCRMDialog from './LeadCRMDialog';
 
 interface EmpresasTableProps {
   empresas: Empresa[];
@@ -23,6 +23,8 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [crmDialogOpen, setCrmDialogOpen] = useState(false);
+  const [selectedEmpresaForCRM, setSelectedEmpresaForCRM] = useState<Empresa | null>(null);
 
   const sortedEmpresas = useMemo(() => {
     return [...empresas].sort((a, b) => {
@@ -105,6 +107,11 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
   const handleViewDetails = (empresa: Empresa) => {
     setSelectedEmpresa(empresa);
     setDetailsOpen(true);
+  };
+
+  const handleOpenCRM = (empresa: Empresa) => {
+    setSelectedEmpresaForCRM(empresa);
+    setCrmDialogOpen(true);
   };
 
   return (
@@ -315,6 +322,22 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
                             <Button 
                               variant="ghost" 
                               size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-purple-100 hover:to-violet-200 transition-all duration-200 rounded-full"
+                              onClick={() => handleOpenCRM(empresa)}
+                            >
+                              <Target className="h-4 w-4 text-purple-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Abrir CRM - Gestão de Lead</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
                               className="h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-orange-100 hover:to-amber-200 transition-all duration-200 rounded-full"
                               onClick={() => window.open(empresa.maps, '_blank')}
                             >
@@ -434,6 +457,15 @@ const EmpresasTable = ({ empresas, currentPage, itemsPerPage, onPageChange }: Em
         empresa={selectedEmpresa}
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
+      />
+
+      <LeadCRMDialog 
+        empresa={selectedEmpresaForCRM}
+        open={crmDialogOpen}
+        onOpenChange={setCrmDialogOpen}
+        onConvertToLead={(empresa) => {
+          console.log('Empresa convertida para lead:', empresa);
+        }}
       />
     </TooltipProvider>
   );
